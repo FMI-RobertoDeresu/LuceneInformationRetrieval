@@ -43,6 +43,8 @@ public class Main {
         }
 
         // query
+        System.out.println("Ready for queries!");
+
         Scanner scanner = new Scanner(System.in);
         Searcher searcher = new Searcher(index, docsPerPage);
 
