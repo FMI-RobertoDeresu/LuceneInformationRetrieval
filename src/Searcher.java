@@ -1,4 +1,4 @@
-import Models.File;
+import Models.FileModel;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -18,16 +18,19 @@ public class Searcher {
         _docsPerPage = docsPerPage;
     }
 
-    public File[] search(Query query) throws IOException {
+    public FileModel[] search(Query query) throws IOException {
+        if (query == null)
+            return new FileModel[]{};
+
         IndexReader indexReader = DirectoryReader.open(_index);
         IndexSearcher indexSearcher = new IndexSearcher(indexReader);
         TopDocs docs = indexSearcher.search(query, _docsPerPage);
 
-        File[] files = new File[docs.scoreDocs.length];
+        FileModel[] files = new FileModel[docs.scoreDocs.length];
         for (int i = 0; i < docs.scoreDocs.length; ++i) {
             int docId = docs.scoreDocs[i].doc;
             Document doc = indexSearcher.doc(docId);
-            files[i] = new File(doc.get("name"), doc.get("content"));
+            files[i] = new FileModel(doc.get("name"), doc.get("content"));
         }
 
         indexReader.close();
