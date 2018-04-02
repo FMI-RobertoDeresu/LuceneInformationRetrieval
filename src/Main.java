@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
@@ -13,11 +12,9 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.QueryBuilder;
 import org.apache.commons.io.FileUtils;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
 
-import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.tika.Tika;
+import org.apache.tika.exception.TikaException;
 
 public class Main {
     private final static String indexPathStr = "./files/index";
@@ -26,8 +23,8 @@ public class Main {
     private final static boolean buildIndex = true;
     private final static int docsPerPage = 10;
 
-    public static void main(String[] args) throws IOException, NullPointerException {
-        java.io.File stopwordsFile = FileUtils.getFile(stopwordsPathStr);
+    public static void main(String[] args) throws IOException, NullPointerException, TikaException {
+        File stopwordsFile = FileUtils.getFile(stopwordsPathStr);
         List<String> stopwords = FileUtils.readLines(stopwordsFile, Charset.forName("UTF-8"));
 
         Analyzer analyzer = new Analyzer(stopwords);
@@ -39,32 +36,13 @@ public class Main {
             index = new SimpleFSDirectory(Paths.get(indexPathStr));
             Indexer indexer = new Indexer(index, analyzer);
 
-            java.io.File[] files = FileUtils.getFile(docsPathStr).listFiles();
+            Tika tika = new Tika();
+            File[] files = FileUtils.getFile(docsPathStr).listFiles();
+
             if (files != null) {
-                for (java.io.File file : files) {
+                for (File file : files) {
                     String name = file.getName();
-                    String path = file.getPath();
-                    String[] ar = name.toLowerCase().split("\\.");
-                    String extension = ar[ar.length - 1];
-                    String text;
-
-                    if (extension.endsWith("txt"))
-                        text = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
-                    else if (extension.endsWith("pdf")) {
-                        File pdfFile = new File(path);
-                        PDDocument pddDocument = PDDocument.load(pdfFile);
-                        text = new PDFTextStripper().getText(pddDocument);
-                    }
-                    else if (extension.endsWith("docx") || extension.endsWith("doc")) {
-                        FileInputStream inputStream = new FileInputStream(path);
-                        XWPFDocument docx = new XWPFDocument(inputStream);
-                        XWPFWordExtractor we = new XWPFWordExtractor(docx);
-                        text = we.getText();
-                    }
-                    else {
-                        throw new UnsupportedOperationException(String.format("File type not supported '%s'", name));
-                    }
-
+                    String text = tika.parseToString(file.toPath());
                     indexer.addDocument(new FileModel(name, text));
                 }
             }
