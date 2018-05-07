@@ -5,13 +5,13 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.highlight.*;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.util.QueryBuilder;
 
 import java.io.IOException;
 
@@ -26,9 +26,8 @@ public class Searcher {
         _docsPerPage = docsPerPage;
     }
 
-    public FileModel[] search(String queryStr) throws IOException, InvalidTokenOffsetsException {
-        Query query = new QueryBuilder(_analyzer).createPhraseQuery("content", queryStr.replace(' ', WildcardQuery.WILDCARD_STRING));
-
+    public FileModel[] search(String queryStr) throws IOException, InvalidTokenOffsetsException, ParseException {
+        Query query = new QueryParser("content", _analyzer).parse(queryStr);
         if (query == null)
             return new FileModel[]{};
 
@@ -49,14 +48,15 @@ public class Searcher {
             String name = doc.get("name");
             String text = doc.get("content");
 
-            TokenStream stream = TokenSources.getAnyTokenStream(indexReader, docId, "content", _analyzer);
+            TokenStream stream = TokenSources.getTokenStream(indexReader, docId, "content", _analyzer);
             String[] frags = highlighter.getBestFragments(stream, text, 5);
-            text = String.join("...", frags);
+            text = String.join("... ", frags);
 
             files[i] = new FileModel(name, text);
         }
 
         indexReader.close();
+
         return files;
     }
 }

@@ -1,11 +1,11 @@
 package LuceneInformationRetrieval.Core;
 
 import LuceneInformationRetrieval.Core.Filters.StemmerFilter;
-import LuceneInformationRetrieval.Core.Filters.DiacriticsFilter;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 
@@ -24,13 +24,13 @@ public class Analyzer extends org.apache.lucene.analysis.Analyzer {
     protected TokenStreamComponents createComponents(String fieldName) {
         final StandardTokenizer tokenizer = new StandardTokenizer();
         tokenizer.setMaxTokenLength(this.maxTokenLength);
-        TokenStream tokenFilter = new StandardFilter(tokenizer);
-        tokenFilter = new LowerCaseFilter(tokenFilter);
-        tokenFilter = new DiacriticsFilter(tokenFilter);
-        tokenFilter = new StemmerFilter(tokenFilter);
-        tokenFilter = new StopFilter(tokenFilter, _stopwords);
+        TokenStream tokenStream = new StandardFilter(tokenizer);
+        tokenStream = new LowerCaseFilter(tokenStream);
+        tokenStream = new StemmerFilter(tokenStream);
+        tokenStream = new StopFilter(tokenStream, _stopwords);
+        tokenStream = new ASCIIFoldingFilter(tokenStream);
 
-        return new TokenStreamComponents(tokenizer, tokenFilter) {
+        return new TokenStreamComponents(tokenizer, tokenStream) {
             protected void setReader(Reader reader) {
                 tokenizer.setMaxTokenLength(maxTokenLength);
                 super.setReader(reader);

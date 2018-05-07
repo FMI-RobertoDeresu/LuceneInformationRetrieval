@@ -24,7 +24,6 @@ public class Builder {
     public Searcher createSearcher(boolean buildIndex) throws IOException, NullPointerException, TikaException {
         File stopwordsFile = FileUtils.getFile(stopwordsPathStr);
         List<String> stopwords = FileUtils.readLines(stopwordsFile, Charset.forName("UTF-8"));
-
         Analyzer analyzer = new Analyzer(stopwords);
 
         // create index directory if not exists
