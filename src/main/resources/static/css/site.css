@@ -1,0 +1,17 @@
+body {
+    padding: 50px;
+}
+
+ul#results {
+    list-style: none;
+    padding: 0;
+}
+
+ul#results li {
+    margin-bottom: 20px;
+}
+
+span.highlight {
+    background-color: #ffff7d;
+    font-weight: bold;
+}

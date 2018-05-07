@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lucene-IR</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="resources/static/lib/bootstrap-4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="resources/static/css/site.css">
+</head>
+<body>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="get" action="/search" id="search-form">
+            <input name="query" class="form-control" onchange="document.getElementById('search-form').submit()" placeholder="Type something! E.g. 'frumoasa'" autofocus>
+        </form>
+    </div>
+</div>
+<br/>
+
+<h6>
+    <span><b th:text="${results.length}"></b></span> results for: <span><b th:text="${query}"></b></span>
+</h6>
+<br/>
+
+<ul id="results">
+    <li th:each="result,iterationStatus : ${results}">
+        <h6 th:text="${iterationStatus.count + '. ' + result.get_name()}"></h6>
+        <p th:utext="${result.get_text()}"></p>
+    </li>
+</ul>
+
+</body>
+</html>
