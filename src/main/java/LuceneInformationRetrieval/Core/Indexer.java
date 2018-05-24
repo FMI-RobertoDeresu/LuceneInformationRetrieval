@@ -3,7 +3,9 @@ package LuceneInformationRetrieval.Core;
 import LuceneInformationRetrieval.Core.Models.FileModel;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
@@ -28,10 +30,18 @@ public class Indexer {
         IndexWriterConfig config = new IndexWriterConfig(_analyzer);
         IndexWriter indexWriter = new IndexWriter(_index, config);
 
-        for (FileModel file : files){
+        FieldType type = new FieldType();
+        type.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
+        type.setTokenized(true);
+        type.setStored(true);
+        type.setStoreTermVectors(true);
+        type.freeze();
+
+        for (FileModel file : files) {
             Document document = new Document();
             document.add(new TextField("name", file.get_name(), Field.Store.YES));
-            document.add(new TextField("content", file.get_text() , Field.Store.YES));
+            document.add(new TextField("content", file.get_text(), Field.Store.YES));
+            document.add(new Field ("content2", file.get_text(), type));
             indexWriter.addDocument(document);
         }
 

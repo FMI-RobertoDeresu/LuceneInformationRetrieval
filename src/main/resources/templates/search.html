@@ -13,22 +13,42 @@
         <form method="get" action="/search" id="search-form">
             <input name="query" class="form-control" onchange="document.getElementById('search-form').submit()"
                    placeholder="Type something! E.g. 'frumoasa fata'" autofocus th:value="${query}">
+            <input name="showtfidf" th:value="${showtfidf}" type="hidden"/>
+            <input name="showresults" th:value="${showresults}" type="hidden"/>
         </form>
     </div>
 </div>
 <br/>
 
-<h6>
-    <span><b th:text="${results.length}"></b></span> results for: <span><b th:text="${query}"></b></span>
-</h6>
-<br/>
+<div th:if="${showtfidf}">
+    <ul class="no-bullets">
+        <li th:each="key : ${tfidf.getTermsIDFs().keySet()}">
+            IDF(<span th:utext="${key}"></span>): <span th:utext="${tfidf.getTermsIDFs().get(key)}"></span>
+        </li>
+    </ul>
 
-<ul id="results">
-    <li th:each="result,iterationStatus : ${results}">
-        <h6 th:text="${iterationStatus.count + '. ' + result.get_name()}"></h6>
-        <p th:utext="${result.get_text()}"></p>
-    </li>
-</ul>
+    <div th:each="fileTfs : ${tfidf.getFilesTFs()}">
+        <h5 th:utext="${fileTfs.getFileName()}"></h5>
+        <div th:each="termTf : ${fileTfs.getTermsTFs()}">
+            <p class="no-margin">TF(<span th:utext="${termTf.getTerm()}"></span>): <span th:utext="${termTf.getTf()}"></span></p>
+            <p class="no-margin">TF-IDF(<span th:utext="${termTf.getTerm()}"></span>): <span th:utext="${termTf.getTfidf()}"></span></p>
+            <br/>
+        </div>
+    </div>
+</div>
+
+<div th:if="${showresults}">
+    <h6>
+        <span><b th:text="${results.length}"></b></span> results for: <span><b th:text="${query}"></b></span>
+    </h6>
+    <br/>
+    <ul id="results">
+        <li th:each="result,iterationStatus : ${results}">
+            <h6 th:text="${iterationStatus.count + '. ' + result.get_name()}"></h6>
+            <p th:utext="${result.get_text()}"></p>
+        </li>
+    </ul>
+</div>
 
 </body>
 </html>

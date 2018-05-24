@@ -14,6 +14,6 @@ public class LuceneInformationRetrievalApplication {
 		SpringApplication.run(LuceneInformationRetrievalApplication.class, args);
 
 		// build lucene index
-        new Builder().createSearcher(true);
+        new Builder().createSearcher(true, false);
 	}
 }

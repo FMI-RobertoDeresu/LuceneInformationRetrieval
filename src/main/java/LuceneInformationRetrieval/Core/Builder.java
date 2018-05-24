@@ -21,7 +21,7 @@ public class Builder {
     private final static String stopwordsPathStr = "./files/stopwords.txt";
     private final static int docsPerPage = 10;
 
-    public Searcher createSearcher(boolean buildIndex) throws IOException, NullPointerException, TikaException {
+    public Searcher createSearcher(boolean buildIndex, boolean highlight) throws IOException, NullPointerException, TikaException {
         File stopwordsFile = FileUtils.getFile(stopwordsPathStr);
         List<String> stopwords = FileUtils.readLines(stopwordsFile, Charset.forName("UTF-8"));
         Analyzer analyzer = new Analyzer(stopwords);
@@ -54,7 +54,7 @@ public class Builder {
             index = new SimpleFSDirectory(Paths.get(indexPathStr));
         }
 
-        Searcher searcher = new Searcher(analyzer, index, docsPerPage);
+        Searcher searcher = new Searcher(analyzer, index, docsPerPage, highlight);
 
         return searcher;
     }
